@@ -1,0 +1,22 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.log
+.terraform/
+terraform.tfvars
+*.tfvars
+
+# AWS Credentials
+.aws/
+*.pem
+
+# IDE/Editor settings
+.vscode/
+.idea/
+*.swp
+
+# MacOS
+.DS_Store
+
+# Linux
+*.bak
