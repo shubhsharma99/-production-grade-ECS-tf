@@ -1,22 +1,11 @@
 # Terraform
+.terraform/
 *.tfstate
 *.tfstate.*
-*.log
-.terraform/
-terraform.tfvars
+crash.log
 *.tfvars
-
-# AWS Credentials
-.aws/
-*.pem
-
-# IDE/Editor settings
-.vscode/
-.idea/
-*.swp
-
-# MacOS
-.DS_Store
-
-# Linux
-*.bak
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraform.lock.hcl
