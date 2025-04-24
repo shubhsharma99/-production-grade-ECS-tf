@@ -31,7 +31,7 @@ resource "aws_internet_gateway" "igw" {
 
 # Elastic IP for NAT Gateway
 resource "aws_eip" "nat_eip" {
-  vpc = true
+  domain = "vpc"
 }
 
 # NAT Gateway in first public subnet

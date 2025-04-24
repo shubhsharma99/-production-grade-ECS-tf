@@ -5,19 +5,20 @@ resource "aws_ecs_cluster" "this" {
 resource "aws_ecs_task_definition" "app" {
   family                   = var.service_name
   requires_compatibilities = ["FARGATE"]
-  network_mode            = "awsvpc"
-  cpu                     = "256"
-  memory                  = "512"
-  execution_role_arn      = var.ecs_task_execution_role_arn
+  network_mode             = "awsvpc"
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = var.ecs_task_execution_role_arn
 
-  container_definitions = jsonencode([
-    {
-      name      = var.service_name
-      image     = var.container_image
-      essential = true
-      portMappings = [{ containerPort = 80, hostPort = 80 }]
-    }
-  ])
+  container_definitions = jsonencode([{
+    name      = var.service_name
+    image     = "986129559431.dkr.ecr.us-east-1.amazonaws.com/my-ecs-app:latest"
+    essential = true
+    portMappings = [{
+      containerPort = 80
+      hostPort      = 80
+    }]
+  }])
 }
 
 resource "aws_ecs_service" "service" {

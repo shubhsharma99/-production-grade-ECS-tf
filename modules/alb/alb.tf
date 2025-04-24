@@ -26,13 +26,31 @@ resource "aws_security_group" "alb_sg" {
 }
 
 resource "aws_lb_target_group" "tg" {
-  name     = "ecs-tg"
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = var.vpc_id
+  name        = "ecs-tg"
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
   target_type = "ip"
+
+  health_check {
+    path                = "/"         # Adjust if your app uses /health or something else
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    matcher             = "200"       # Expected HTTP status code
+  }
 }
 
-output "target_group_arn" {
-  value = aws_lb_target_group.tg.arn
+
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.tg.arn
+  }
 }
