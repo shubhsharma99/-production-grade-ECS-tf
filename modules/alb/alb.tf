@@ -1,8 +1,8 @@
 resource "aws_lb" "this" {
   name               = "ecs-alb"
-  internal           = false
+  internal           = true
   load_balancer_type = "application"
-  subnets            = var.public_subnets
+  subnets            = var.private_subnets
   security_groups    = [aws_security_group.alb_sg.id]
 }
 
@@ -14,7 +14,7 @@ resource "aws_security_group" "alb_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["10.0.0.0/16"]
   }
 
   egress {
@@ -41,9 +41,6 @@ resource "aws_lb_target_group" "tg" {
     matcher             = "200"       # Expected HTTP status code
   }
 }
-
-
-
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.this.arn
   port              = 80

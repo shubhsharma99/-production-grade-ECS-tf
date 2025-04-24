@@ -61,3 +61,88 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+//--------------------------------
+
+# Create the ECS Auto Scaling Target first
+resource "aws_appautoscaling_target" "ecs_target" {
+  max_capacity        = 5
+  min_capacity        = 1
+  resource_id         = "service/${var.cluster_name}/${var.service_name}"
+  scalable_dimension  = "ecs:service:DesiredCount"
+  service_namespace   = "ecs"
+
+  depends_on = [aws_ecs_service.service]  # Ensures ECS service is created before scaling target
+}
+
+# Scale Up Policy
+resource "aws_appautoscaling_policy" "scale_up" {
+  name                   = "scale-up"
+  policy_type            = "TargetTrackingScaling"
+  resource_id           = "service/${var.cluster_name}/${var.service_name}"
+  scalable_dimension    = "ecs:service:DesiredCount"
+  service_namespace     = "ecs"
+  target_tracking_scaling_policy_configuration {
+    target_value         = 50.0
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+    scale_in_cooldown     = 300
+    scale_out_cooldown    = 300
+  }
+
+  depends_on = [aws_appautoscaling_target.ecs_target]  # Ensure the scaling target is created first
+}
+
+# Scale Down Policy
+resource "aws_appautoscaling_policy" "scale_down" {
+  name                   = "scale-down"
+  policy_type            = "TargetTrackingScaling"
+  resource_id           = "service/${var.cluster_name}/${var.service_name}"
+  scalable_dimension    = "ecs:service:DesiredCount"
+  service_namespace     = "ecs"
+  target_tracking_scaling_policy_configuration {
+    target_value         = 20.0
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+    scale_in_cooldown     = 300
+    scale_out_cooldown    = 300
+  }
+
+  depends_on = [aws_appautoscaling_target.ecs_target]  # Ensure the scaling target is created first
+}
+
+resource "aws_cloudwatch_metric_alarm" "scale_up_alarm" {
+  alarm_name                = "scale-up-cpu-utilization"
+  comparison_operator       = "GreaterThanThreshold"
+  evaluation_periods        = 1
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/ECS"
+  period                    = 60
+  statistic                 = "Average"
+  threshold                 = 50
+  alarm_description         = "Scale up if CPU utilization > 50%"
+  dimensions = {
+    ClusterName = var.cluster_name
+    ServiceName = var.service_name
+  }
+  alarm_actions = [aws_appautoscaling_policy.scale_up.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "scale_down_alarm" {
+  alarm_name                = "scale-down-cpu-utilization"
+  comparison_operator       = "LessThanThreshold"
+  evaluation_periods        = 1
+  metric_name               = "CPUUtilization"
+  namespace                 = "AWS/ECS"
+  period                    = 60
+  statistic                 = "Average"
+  threshold                 = 20
+  alarm_description         = "Scale down if CPU utilization < 20%"
+  dimensions = {
+    ClusterName = var.cluster_name
+    ServiceName = var.service_name
+  }
+  alarm_actions = [aws_appautoscaling_policy.scale_down.arn]
+}
