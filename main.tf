@@ -6,10 +6,11 @@ module "vpc" {
 }
 
 module "alb" {
-  source         = "./modules/alb"
-  vpc_id         = module.vpc.vpc_id
-  public_subnets = module.vpc.public_subnets
-   private_subnets = module.vpc.private_subnets
+  source          = "./modules/alb"
+  vpc_id          = module.vpc.vpc_id
+  public_subnets  = module.vpc.public_subnets
+  private_subnets = module.vpc.private_subnets
+  certificate_arn = var.certificate_arn
 }
 
 module "iam" {
@@ -31,5 +32,5 @@ module "ecs" {
   private_subnets             = module.vpc.private_subnets
   target_group_arn            = module.alb.target_group_arn
   ecs_task_execution_role_arn = module.iam.execution_role_arn
-   
+
 }

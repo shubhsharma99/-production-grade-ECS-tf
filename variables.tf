@@ -22,3 +22,8 @@ variable "repo_name" {
   description = "ECR repository name"
   type        = string
 }
+
+variable "certificate_arn" {
+  description = "ACM SSL Certificate ARN for HTTPS listener"
+  type        = string
+}
