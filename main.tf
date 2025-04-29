@@ -10,7 +10,7 @@ module "alb" {
   vpc_id          = module.vpc.vpc_id
   public_subnets  = module.vpc.public_subnets
   private_subnets = module.vpc.private_subnets
- 
+ certificate_arn = var.certificate_arn
 }
 
 module "iam" {
@@ -33,4 +33,10 @@ module "ecs" {
   target_group_arn            = module.alb.target_group_arn
   ecs_task_execution_role_arn = module.iam.execution_role_arn
 
+}
+module "bastion" {
+  source           = "./modules/bastion"
+  vpc_id           = module.vpc.vpc_id
+  public_subnet    = module.vpc.public_subnets[0]
+  ssh_key_name     = var.ssh_key_name
 }

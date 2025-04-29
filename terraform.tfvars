@@ -13,5 +13,5 @@ private_subnets = [
 ]
 
 repo_name       = "my-ecs-app"
-
-
+certificate_arn = "arn:aws:acm:us-east-1:986129559431:certificate/28d11fcb-b8bc-4d5f-91de-3abd4b600050"
+ssh_key_name = "bastion-key"

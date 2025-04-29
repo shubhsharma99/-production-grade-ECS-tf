@@ -23,7 +23,13 @@ variable "repo_name" {
   type        = string
 }
 
-# variable "certificate_arn" {
-#   description = "ACM SSL Certificate ARN for HTTPS listener"
-#   type        = string
-# }
+variable "certificate_arn" {
+  description = "ACM SSL Certificate ARN for HTTPS listener"
+  type        = string
+}
+
+variable "ssh_key_name" {
+  description = "The name of the SSH key pair to use for bastion access"
+  type        = string
+}
+
